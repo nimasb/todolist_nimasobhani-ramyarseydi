@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>TodoApp - Create A Todo With Django</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+        integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css"
+        href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <script src="{% static 'myscripts.js' %}"></script>
+</head>
+
+<body style="background-color: #e6c3d1;">
+    <div django-app="TaskManager">
+        <div class="container">
+            <div class="content">
+                <h3>------------------------------------ add new todo -----------------------------------------</h3>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <!-- input title -->
+                    <label for="description">Description : </label>
+                    <input type="text" id="description" class="taskName" placeholder="What do you need to do?"
+                        name="description">
+                    <br>
+                    <br>
+                    <!-- input status -->
+                    <label for="category">status : </label>
+                    <select id="status" class="taskStatus" name="status_select">
+                        <option class="disabled" value="">Choose a status</option>
+                        <option class="" value="complete" name="complete">complete</option>
+                        <option class="" value="uncomplete" name="complete">uncomplete</option>
+                    </select>
+                    <br>
+                    <br>
+                    <!-- input category -->
+                    <label for="category">Category : </label>
+                    <select id="category" class="taskCategory" name="category_select">
+                        <option class="disabled" value="">Choose a category</option>
+                        {% for category in categories %}
+                        <option class="" value="{{ category.name }}" name="{{ category.name }}">{{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <br>
+                    <br>
+                    <!-- input date -->
+                    <label for="dueDate">Due Date : </label>
+                    <input type="date" id="dueDate" class="taskDate" name="date">
+                    <br>
+                    <br>
+                    <!-- buttons -->
+                    <button class="taskAdd" name="taskAdd" type="submit">Add task</button>
+                    <button class="taskDelete" name="taskDelete" formnovalidate="" type="submit"
+                        onclick="$('input#sublist').click();">Delete Tasks</button>
+                    <button class="taskupdate" name="taskupdate" formnovalidate="" type="submit"
+                        onclick="$('input#sublist').click();">task update</button>
+                    <br>
+                    <br>
+                    <!-- add category -->
+                    <h3>------------------------------------ add new category ------------------------------------</h3>
+
+                    <label for="inputcategory">category : </label>
+                    <input type="text" id="inputcategory" placeholder="new category" name="inputcategory">
+                    <button name="addcategory" formnovalidate="" type="submit" onclick="$('input#sublist').click();">add
+                        category</button>
+                    <!-- search -->
+                    <h3>------------------------------------ search -------------------------------------------------</h3>
+
+                    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.."
+                        title="Type in a name">
+                    <ul id="myUL">
+                        {% for todo in todos %}
+                        <li> <input type="checkbox" class="taskCheckbox" name="checkedbox" id="{{ todo.id }}"
+                                value="{{ todo.id }}"> <a href="#">title : {{todo.title}} || category :
+                                {{todo.category}} || status : {{todo.status}} || due date : {{todo.due_date}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </form>
+                <h3>------------------------------------ filter ---------------------------------------------------</h3>
+                <!-- Control buttons for filter -->
+                <div id="myBtnContainer">
+                    <button class="btn active" onclick="filterSelection('all')"> Show all</button>
+                    {% for cat in categories%}
+                    <button class="btn" onclick="filterSelection('{{cat}}')"> {{cat}}</button>
+                    {% endfor %}
+                </div>
+
+                <!-- list of works -->
+                <div class="container">
+                    {% for todo in todos %}
+                    <div class="filterDiv {{todo.category}}">title : {{todo.title}} <br> category :
+                        {{todo.category}} <br> status : {{todo.status}} <br> due date : {{todo.due_date}}</div>
+                    {% endfor %}
+                </div>
+                <!-- js -->
+                <script>
+                    function myFunction() {
+                        var input, filter, ul, li, a, i, txtValue;
+                        input = document.getElementById("myInput");
+                        filter = input.value.toUpperCase();
+                        ul = document.getElementById("myUL");
+                        li = ul.getElementsByTagName("li");
+                        for (i = 0; i < li.length; i++) {
+                            a = li[i].getElementsByTagName("a")[0];
+                            txtValue = a.textContent || a.innerText;
+                            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                li[i].style.display = "";
+                            } else {
+                                li[i].style.display = "none";
+                            }
+                        }
+                    }
+                    filterSelection("all")
+                    function filterSelection(c) {
+                        var x, i;
+                        x = document.getElementsByClassName("filterDiv");
+                        if (c == "all") c = "";
+                        for (i = 0; i < x.length; i++) {
+                            w3RemoveClass(x[i], "show");
+                            if (x[i].className.indexOf(c) > -1) w3AddClass(x[i], "show");
+                        }
+                    }
+
+                    function w3AddClass(element, name) {
+                        var i, arr1, arr2;
+                        arr1 = element.className.split(" ");
+                        arr2 = name.split(" ");
+                        for (i = 0; i < arr2.length; i++) {
+                            if (arr1.indexOf(arr2[i]) == -1) { element.className += " " + arr2[i]; }
+                        }
+                    }
+
+                    function w3RemoveClass(element, name) {
+                        var i, arr1, arr2;
+                        arr1 = element.className.split(" ");
+                        arr2 = name.split(" ");
+                        for (i = 0; i < arr2.length; i++) {
+                            while (arr1.indexOf(arr2[i]) > -1) {
+                                arr1.splice(arr1.indexOf(arr2[i]), 1);
+                            }
+                        }
+                        element.className = arr1.join(" ");
+                    }
+
+                    // Add active class to the current button (highlight it)
+                    var btnContainer = document.getElementById("myBtnContainer");
+                    var btns = btnContainer.getElementsByClassName("btn");
+                    for (var i = 0; i < btns.length; i++) {
+                        btns[i].addEventListener("click", function () {
+                            var current = document.getElementsByClassName("active");
+                            current[0].className = current[0].className.replace(" active", "");
+                            this.className += " active";
+                        });
+                    }
+                </script>
+
+</body>
+
+</html>
